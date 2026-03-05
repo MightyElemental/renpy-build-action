@@ -1,0 +1,45 @@
+name: "Build Ren'Py Project"
+author: "MightyElemental"
+description: "Build a Ren'Py project using a specified Ren'Py SDK version"
+
+inputs:
+  sdk-version:
+    description: "The version of the Ren'Py SDK to use"
+    required: true
+    default: "8.5.2"
+  project-dir:
+    description: "The path to the directory where the project exists"
+    required: true
+    default: "."
+  renpy-steam:
+    description: "Include Ren'Py Steam integration library"
+    required: false
+    default: "false"
+  targets:
+    description: "A list of target platforms to build for"
+    required: false
+    default: "pc"
+  python-requirements:
+    description: "The path to a pip requirements file"
+    required: false
+    default: ""
+  python-lib-install-path:
+    description: "The path to install 3rd party pip libraries to"
+    required: false
+    default: ""
+  output-dir:
+    description: "The directory where the built files will be placed"
+    required: false
+    default: "./dist"
+
+outputs:
+  version:
+    description: "The built version of the project"
+
+runs:
+  using: node24
+  main: 'dist/index.js'
+  
+branding:
+  color: 'blue'
+  icon: 'archive'
