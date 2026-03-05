@@ -138,7 +138,7 @@ async function buildTarget(target: string, projectDir: string, destinationDir: s
             break;
 
         case "web":
-            args.push("web_build", "--destination", destinationDir, projectDir)
+            args.push("web_build", "--destination", path.join(destinationDir, "web"), projectDir)
             break;
 
         case "android":

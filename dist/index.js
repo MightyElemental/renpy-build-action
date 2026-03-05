@@ -59572,7 +59572,7 @@ async function buildTarget(target, projectDir, destinationDir) {
             args.push("distribute", "--package", target, "--destination", destinationDir, projectDir);
             break;
         case "web":
-            args.push("web_build", "--destination", destinationDir, projectDir);
+            args.push("web_build", "--destination", path.join(destinationDir, "web"), projectDir);
             break;
         case "android":
             args.push("android_build", "--destination", destinationDir, projectDir);
