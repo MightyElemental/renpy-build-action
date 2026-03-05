@@ -59572,7 +59572,9 @@ async function buildTarget(target, projectDir, destinationDir) {
             args.push("distribute", "--package", target, "--destination", destinationDir, projectDir);
             break;
         case "web":
-            args.push("web_build", "--destination", path.join(destinationDir, "web"), projectDir);
+            const webPath = path.join(destinationDir, "web");
+            args.push("web_build", "--destination", webPath, projectDir);
+            await io.rmRF(webPath); // delete temporary folder
             break;
         case "android":
             args.push("android_build", "--destination", destinationDir, projectDir);

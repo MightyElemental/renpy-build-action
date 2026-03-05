@@ -138,7 +138,9 @@ async function buildTarget(target: string, projectDir: string, destinationDir: s
             break;
 
         case "web":
-            args.push("web_build", "--destination", path.join(destinationDir, "web"), projectDir)
+            const webPath = path.join(destinationDir, "web")
+            args.push("web_build", "--destination", webPath, projectDir)
+            await io.rmRF(webPath); // delete temporary folder
             break;
 
         case "android":
