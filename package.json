@@ -1,0 +1,29 @@
+{
+  "name": "build-renpy-project",
+  "version": "0.1.0",
+  "private": true,
+  "type": "commonjs",
+  "main": "dist/index.js",
+  "scripts": {
+    "build:ts": "tsc -p tsconfig.json",
+    "build:ncc": "ncc build lib/main.js -o dist --license licenses.txt",
+    "build": "npm run build:ts && npm run build:ncc",
+    "package": "npm run build",
+    "lint": "node -c dist/index.js || true"
+  },
+  "dependencies": {
+    "@actions/core": "^2.0.3",
+    "@actions/exec": "^2.0.0",
+    "@actions/io": "^2.0.0",
+    "@actions/tool-cache": "^2.0.2"
+  },
+  "devDependencies": {
+    "@types/node": "^24.11.0",
+    "@vercel/ncc": "^0.38.4",
+    "typescript": "^5.9.3"
+  },
+  "description": "Build a Ren'Py project",
+  "keywords": [],
+  "author": "MightyElemental",
+  "license": "MIT"
+}
