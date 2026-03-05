@@ -7,8 +7,9 @@ import * as fs from "fs/promises";
 import * as path from "path";
 import * as os from "os";
 
+const isWindows = process.platform === "win32";
 const renpyDir = "../renpy";
-const renpySh = path.join(renpyDir, "renpy.sh");
+const renpyExec = path.join(renpyDir, isWindows ? "renpy.exe" : "renpy.sh");
 const renpyLauncher = path.join(renpyDir, "launcher");
 
 
@@ -49,7 +50,7 @@ async function getProjectVersion(projectDir: string): Promise<string> {
 
   try {
     // Suppress stdout similar to >/dev/null by not streaming it into logs.
-    await exec.exec(renpySh, ["--json-dump", tmpPath, projectDir, "quit"], {
+    await exec.exec(renpyExec, ["--json-dump", tmpPath, projectDir, "quit"], {
       silent: true,
     });
 
@@ -153,7 +154,7 @@ async function buildTarget(target: string, projectDir: string, destinationDir: s
     }
 
     core.info(`Building the project for platform '${target}' at '${projectDir}'...`)
-    await exec.exec(renpySh, args)
+    await exec.exec(renpyExec, args)
 }
 
 
