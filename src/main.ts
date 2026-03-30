@@ -129,6 +129,7 @@ async function setupAndroid(sdkVersion: string) {
 
 async function buildTarget(target: string, projectDir: string, destinationDir: string) {
     let args = [renpyLauncher]
+    let cleanupWebPath: string | null = null
 
     switch (target) {
         case "pc":
@@ -141,7 +142,7 @@ async function buildTarget(target: string, projectDir: string, destinationDir: s
         case "web":
             const webPath = path.join(destinationDir, "web")
             args.push("web_build", "--destination", webPath, projectDir)
-            await io.rmRF(webPath); // delete temporary folder
+            cleanupWebPath = webPath
             break;
 
         case "android":
@@ -155,10 +156,16 @@ async function buildTarget(target: string, projectDir: string, destinationDir: s
 
     core.info(`Building the project for platform '${target}' at '${projectDir}'...`)
     await exec.exec(renpyExec, args)
+
+    if (cleanupWebPath) {
+        core.info(`Cleaning up web build artifacts at '${cleanupWebPath}'...`)
+        await io.rmRF(cleanupWebPath)
+    }
 }
 
 
 async function run(): Promise<void> {
+    core.info(`Running on ${process.platform} -> Using ${renpyExec}`)
     try {
         const sdkVersion = core.getInput("sdk-version", { required: true });
         const projectDir = core.getInput("project-dir") || ".";
