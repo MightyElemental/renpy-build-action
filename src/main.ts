@@ -9,7 +9,9 @@ import * as os from "os";
 
 const isWindows = process.platform === "win32";
 const renpyDir = "../renpy";
-const renpyExec = path.join(renpyDir, isWindows ? "renpy.exe" : "renpy.sh");
+const renpyExec = isWindows
+  ? path.join(renpyDir, "lib", "py3-windows-x86_64", "python.exe")
+  : path.join(renpyDir, "renpy.sh");
 const renpyLauncher = path.join(renpyDir, "launcher");
 
 
