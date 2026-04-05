@@ -9,9 +9,6 @@ import * as os from "os";
 
 const isWindows = process.platform === "win32";
 const renpyDir = path.resolve("..", "renpy");
-const renpyExec = isWindows
-  ? path.join(renpyDir, "lib", "py3-windows-x86_64", "python.exe")
-  : path.join(renpyDir, "renpy.sh");
 const renpyLauncher = path.join(renpyDir, "launcher");
 
 
@@ -24,6 +21,18 @@ function parseTargets(targetsRaw: string): string[] {
     const t = (targetsRaw || "").trim();
     if (!t) return ["pc"];
     return t.split(/\s+/).filter(Boolean);
+}
+
+
+async function execRenpy(args: string[], options?: exec.ExecOptions | undefined): Promise<void> {
+    let exe: string = path.join(renpyDir, "renpy.sh");
+
+    if (isWindows) {
+        exe = path.join(renpyDir, "lib", "py3-windows-x86_64", "python.exe");
+        args.unshift(path.join(renpyDir, "renpy.py"));
+    }
+
+    await exec.exec(exe, args, options)
 }
 
 
@@ -52,17 +61,17 @@ async function getProjectVersion(projectDir: string): Promise<string> {
 
   try {
     // Suppress stdout similar to >/dev/null by not streaming it into logs.
-    await exec.exec(renpyExec, ["--json-dump", tmpPath, projectDir, "quit"], {
-      silent: true,
+    await execRenpy(["--json-dump", tmpPath, projectDir, "quit"], {
+        silent: true,
     });
 
     const raw = await fs.readFile(tmpPath, "utf8");
     const data = JSON.parse(raw) as any;
 
     const version: string =
-      (typeof data?.build?.version === "string" && data.build.version) ||
-      (typeof data?.config?.version === "string" && data.config.version) ||
-      "";
+        (typeof data?.build?.version === "string" && data.build.version) ||
+        (typeof data?.config?.version === "string" && data.config.version) ||
+        "";
 
     return version;
   } finally {
@@ -157,7 +166,7 @@ async function buildTarget(target: string, projectDir: string, destinationDir: s
     }
 
     core.info(`Building the project for platform '${target}' at '${projectDir}'...`)
-    await exec.exec(renpyExec, args)
+    await execRenpy(args)
 
     if (cleanupWebPath) {
         core.info(`Cleaning up web build artifacts at '${cleanupWebPath}'...`)
@@ -167,7 +176,6 @@ async function buildTarget(target: string, projectDir: string, destinationDir: s
 
 
 async function run(): Promise<void> {
-    core.info(`Running on ${process.platform} -> Using ${renpyExec}`)
     try {
         const sdkVersion = core.getInput("sdk-version", { required: true });
         const projectDir = core.getInput("project-dir") || ".";

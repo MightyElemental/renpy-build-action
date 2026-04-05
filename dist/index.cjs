@@ -22784,7 +22784,6 @@ var path5 = __toESM(require("path"), 1);
 var os6 = __toESM(require("os"), 1);
 var isWindows = process.platform === "win32";
 var renpyDir = path5.resolve("..", "renpy");
-var renpyExec = isWindows ? path5.join(renpyDir, "lib", "py3-windows-x86_64", "python.exe") : path5.join(renpyDir, "renpy.sh");
 var renpyLauncher = path5.join(renpyDir, "launcher");
 function parseBool(v) {
   return ["true", "1", "yes", "y", "on"].includes(v.trim().toLowerCase());
@@ -22794,6 +22793,14 @@ function parseTargets(targetsRaw) {
   if (!t)
     return ["pc"];
   return t.split(/\s+/).filter(Boolean);
+}
+async function execRenpy(args, options) {
+  let exe = path5.join(renpyDir, "renpy.sh");
+  if (isWindows) {
+    exe = path5.join(renpyDir, "lib", "py3-windows-x86_64", "python.exe");
+    args.unshift(path5.join(renpyDir, "renpy.py"));
+  }
+  await exec(exe, args, options);
 }
 async function installRenpySdk(sdkVersion) {
   const sdkName = `renpy-${sdkVersion}-sdk`;
@@ -22810,7 +22817,7 @@ async function getProjectVersion(projectDir) {
   const tmpDir = await fs4.mkdtemp(path5.join(os6.tmpdir(), "renpy-json-"));
   const tmpPath = path5.join(tmpDir, "dump.json");
   try {
-    await exec(renpyExec, ["--json-dump", tmpPath, projectDir, "quit"], {
+    await execRenpy(["--json-dump", tmpPath, projectDir, "quit"], {
       silent: true
     });
     const raw = await fs4.readFile(tmpPath, "utf8");
@@ -22885,14 +22892,13 @@ async function buildTarget(target, projectDir, destinationDir) {
       break;
   }
   info(`Building the project for platform '${target}' at '${projectDir}'...`);
-  await exec(renpyExec, args);
+  await execRenpy(args);
   if (cleanupWebPath) {
     info(`Cleaning up web build artifacts at '${cleanupWebPath}'...`);
     await rmRF(cleanupWebPath);
   }
 }
 async function run() {
-  info(`Running on ${process.platform} -> Using ${renpyExec}`);
   try {
     const sdkVersion = getInput("sdk-version", { required: true });
     const projectDir = getInput("project-dir") || ".";
